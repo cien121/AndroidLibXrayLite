@@ -73,9 +73,10 @@ func registerProtectController() {
 	})
 }
 
-// ListRegisteredTransports returns the sorted names of Xray's registered transports,
-// for the Kotlin startup self-check in XrayCore.initialize() to fail fast on a
-// missing transport (e.g. the 1.0.21 "unknown transport protocol: mist" regression).
-func ListRegisteredTransports() []string {
-	return internet.ListRegisteredTransports()
+// ListRegisteredTransports returns the sorted names of Xray's registered transports
+// as a comma-separated string, for the Kotlin startup self-check in
+// XrayCore.initialize() to fail fast on a missing transport
+// (e.g. the 1.0.21 "unknown transport protocol: mist" regression).
+func ListRegisteredTransports() string {
+	return strings.Join(internet.ListRegisteredTransports(), ",")
 }
