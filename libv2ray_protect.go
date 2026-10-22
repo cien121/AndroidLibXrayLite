@@ -10,8 +10,8 @@ import (
 	"github.com/xtls/xray-core/transport/internet"
 )
 
-// ProtectHandler 由 Kotlin 实现，gomobile 生成 Java 接口。
-// App 侧在 VpnService 中实现 Protect(fd)，调用 VpnService.protect(fd)。
+// ProtectHandler is implemented by the Kotlin side; gomobile generates a Java interface.
+// The App implements Protect(fd) by calling VpnService.protect(fd).
 type ProtectHandler interface {
 	Protect(fd int32) bool
 }
@@ -23,26 +23,26 @@ var (
 	protectOnce    sync.Once
 )
 
-// SetProtectHandler 设置 App 侧的 protect 回调，必须在 StartLoop 之前调用。
+// SetProtectHandler sets the App-side protect callback. Must be called before StartLoop.
 func SetProtectHandler(h ProtectHandler) {
 	protectHandler = h
 }
 
-// GetProtectCount 返回已成功 protect 的 socket 计数。
+// GetProtectCount returns the number of sockets successfully protected.
 func GetProtectCount() int64 {
 	return atomic.LoadInt64(&protectCount)
 }
 
-// GetProtectFailCount 返回 protect 失败的计数（protect 返回 false）。
+// GetProtectFailCount returns the number of protect failures (Protect returned false).
 func GetProtectFailCount() int64 {
 	return atomic.LoadInt64(&protectFail)
 }
 
-// registerProtectController 向 Xray 注册 dialer controller，在每个出站 socket
-// 创建时调用 protectHandler.Protect(fd)。只注册一次（sync.Once）。
-// 覆盖 TCP/UDP（含 Hy2 QUIC）——Hy2 的两处建 socket 都走
-// internet.DialSystem → effectiveSystemDialer.Dial → UDP 分支，
-// lc.Control 里循环调用全部 Controllers。
+// registerProtectController registers a dialer controller with Xray that calls
+// protectHandler.Protect(fd) on every outbound socket creation. Registered once (sync.Once).
+// Covers TCP/UDP (incl. Hy2 QUIC): both Hy2 socket creation sites go through
+// internet.DialSystem -> effectiveSystemDialer.Dial -> UDP branch, where
+// lc.Control loops over all Controllers.
 func registerProtectController() {
 	protectOnce.Do(func() {
 		err := internet.RegisterDialerController(
@@ -50,7 +50,7 @@ func registerProtectController() {
 				if protectHandler == nil {
 					return nil
 				}
-				// loopback 跳过，日志更干净
+				// Skip loopback for cleaner logs.
 				if strings.HasPrefix(address, "127.") ||
 					strings.HasPrefix(address, "[::1]:") {
 					return nil
@@ -73,9 +73,9 @@ func registerProtectController() {
 	})
 }
 
-// ListRegisteredTransports 返回 Xray 已注册的 transport 名（排序），
-// 供 Kotlin 在 XrayCore.initialize() 做启动自检，fail-fast 发现漏注册
-//（如 1.0.21 的 "unknown transport protocol: mist"）。
+// ListRegisteredTransports returns the sorted names of Xray's registered transports,
+// for the Kotlin startup self-check in XrayCore.initialize() to fail fast on a
+// missing transport (e.g. the 1.0.21 "unknown transport protocol: mist" regression).
 func ListRegisteredTransports() []string {
 	return internet.ListRegisteredTransports()
 }
