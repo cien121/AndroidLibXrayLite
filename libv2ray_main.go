@@ -17,6 +17,7 @@ import (
 	corestats "github.com/xtls/xray-core/features/stats"
 	coreserial "github.com/xtls/xray-core/infra/conf/serial"
 	_ "github.com/xtls/xray-core/main/distro/all"
+	_ "github.com/xtls/xray-core/transport/internet/mist"
 	browser_dialer "github.com/xtls/xray-core/transport/internet/browser_dialer"
 	mobasset "golang.org/x/mobile/asset"
 )
@@ -64,6 +65,9 @@ func setEnvVariable(key, value string) {
 // It sets up asset path, certificate path, XUDP base key and customizes the file reader
 // to support Android asset system
 func InitCoreEnv(envPath string, key string) {
+	// 注册 socket protect controller（Issue #1 正解），只注册一次
+	registerProtectController()
+
 	// Set asset/cert paths
 	if len(envPath) > 0 {
 		setEnvVariable(coreAsset, envPath)
