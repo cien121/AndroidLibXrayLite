@@ -2,9 +2,8 @@ module github.com/2dust/AndroidLibXrayLite
 
 go 1.27
 
-// Mist UDP test: pin to ccc73db8 (has UDP client + WINDOW_UPDATE test)
-// which includes ListRegisteredTransports() for startup self-check.
-replace github.com/xtls/xray-core => github.com/cien121/xray-core v0.0.0-20261023030416-ccc73db80fc5
+// Mist UDP: pin to 10929838 (QUICInitialCodec Phase 0 + scheduler + reliability fixes)
+replace github.com/xtls/xray-core => github.com/cien121/xray-core v0.0.0-20261024105849-10929838f189
 
 // mist 分支底座为 v26.9.1，需配 2026-03 版 reality（2026-10 版 API 不兼容）
 replace github.com/xtls/reality => github.com/xtls/reality v0.0.0-20260322125925-9234c772ba8f
